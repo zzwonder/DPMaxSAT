@@ -1,0 +1,28 @@
+c Each comment line starts with "c".
+
+c The problem line for join trees of CNF formulas is "p jt $vars $clauses $nodes".
+c A 12-node join tree of a formula with 7 variables and 7 constraints:
+p jt 7 7 12
+
+c Each leaf node corresponds to a unique constraint.
+c Leaf nodes are implicitly numbered {1,..., $clauses} (in this case, {n1,..., n5}).
+
+c Each internal node line is "$index $children e $elimVars".
+c $index identifies this node (an integer in {clauses + 1,..., $nodes}).
+c $children is a list of indices of child nodes (subset of {1,..., $index - 1}).
+c $elimVars is a list of variables to be eliminated/projected (subset of {1,..., $vars}).
+
+c Internal node n8 has child n7 and eliminates variables {z7}:
+8 7 e 7
+
+c Internal node n9 has child n3, n5, n3 and eliminates variable z3, z4:
+9 3 5 4 e 3 4
+
+c Internal node n10 has child n9, n1, n2 and eliminates variable z1, z2:
+10 9 1 2 e 1 2
+
+c Internal node n11 has children {n6} and eliminates variable z6:
+11 6 e 6
+
+c Internal node n12 has children {n8, n10, n11} and eliminates variables {z5}:
+12 8 10 11 e 5

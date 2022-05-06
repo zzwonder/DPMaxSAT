@@ -1,0 +1,14 @@
+* #variable= 7 #constraint= 7 #soft= 3 mincost= 51 maxcost= 90 sumcost= 300
+* begin normalizer comments
+* category= PARTIAL-BIGINT-LIN
+* end normalizer comments
+*********************************************
+soft: 300 ;
++1 x1 +1 x2 >= 1 ;
+[90] -1 x1 -1 x2 >= -1 ;
+[51] -1 x3 +1 x2 >= 0 ;
+-1 x3 +1 x4 >= 0 ;
+[74] +1 x3 -1 x2 -1 x4 >= -1 ;
+[85] -1 x5 +1 x6 >= 0 ;
+-1 x5 +1 x7 >= 0 ;
+x 1 2 3 4 0 
