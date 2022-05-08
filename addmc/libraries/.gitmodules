@@ -1,0 +1,9 @@
+[submodule "cudd"]
+	path = cudd
+	url = https://github.com/zzwonder/cudd
+[submodule "cxxopts"]
+	path = cxxopts
+	url = https://github.com/jarro2783/cxxopts.git
+[submodule "sylvan"]
+	path = sylvan
+	url = https://github.com/vuphan314/sylvan.git
