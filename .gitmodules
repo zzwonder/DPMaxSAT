@@ -1,9 +1,9 @@
 [submodule "cudd"]
-	path = cudd
+	path = addmc/libraries/cudd
 	url = https://github.com/zzwonder/cudd
 [submodule "cxxopts"]
-	path = cxxopts
+	path = addmc/libraries/cxxopts
 	url = https://github.com/jarro2783/cxxopts
 [submodule "sylvan"]
-	path = sylvan
-	url = https://github.com/vuphan314/sylvan/
+	path = addmc/libraries/sylvan
+	url = https://github.com/vuphan314/sylvan
