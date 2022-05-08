@@ -6,7 +6,7 @@ DPMS handles generalized MaxSAT problems in an extended DIMACS format (described
   - Execution phase: [DMC](./dmc) computes the answer to a generalized MaxSAT formula using the (graded) project-join tree
 
 ## Installation (Linux)
-- - automake 1.16
+- automake 1.16
 - cmake 3.16
 - g++ 9.3
 - gmp 6.2
