@@ -3,7 +3,7 @@
 	url = https://github.com/zzwonder/cudd
 [submodule "cxxopts"]
 	path = cxxopts
-	url = https://github.com/jarro2783/cxxopts.git
+	url = https://github.com/jarro2783/cxxopts
 [submodule "sylvan"]
 	path = sylvan
-	url = https://github.com/vuphan314/sylvan.git
+	url = https://github.com/vuphan314/sylvan/
