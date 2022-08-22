@@ -4,24 +4,32 @@
 
 A tool for using tree decompositions to construct join trees.
 
-## Running with Singularity
+## Prerequisites
 
-Because of the variety of dependencies used in the various graph decomposition tools, it is recommended to use Singularity to run LG.
-
-### Installation
-
-The container can be built with the following commands:
-```
-sudo make lg.sif
-```
-
-### Running
-
-Once the container has been built, LG can be run with the following command:
-
-Once LG and FlowCutter has been built, LG can be run with the following command:
+* make
+* g++
+* boost (graph and system), which can be installed by:
 ```bash
-./lg.sif "/solvers/flow-cutter-pace17/flow_cutter_pace17 -s 1234567 -p 100" <../examples/pbtest.wbo
+sudo apt-get install libboost-all-dev
+```
+
+## Installation
+
+LG can then be built with the following command:
+```bash
+make
+```
+
+FlowCutter, a tree decomposer, can be built with the following command:
+```bash
+make -C solvers/flow-cutter-pace17
+```
+
+## Running
+
+Once LG and FlowCutter have been built, LG can be run with the following command:
+```bash
+build/lg "./solvers/flow-cutter-pace17/flow_cutter_pace17 -s 1234567 -p 100" <../examples/pbtest.wbo
 ```
 
 On this command, output is:
@@ -44,29 +52,8 @@ c status 3 1631418184753
 c min shortcut heuristic
 c run with 0.0/0.1/0.2 min balance and node_min_expansion in endless loop with varying seed
 ^C
-
 ```
-Note that LG is an anytime algorithm, so it prints multiple join trees to STDOUT separated by '='.
-The pid of the tree decomposition solver is given in the first comment line (`c pid`) and can be killed to stop the tree decomposition solver.
 
-## Running without Singularity
-
-The prerequisites to install LG, at minimum, are:
-* make
-* g++
-* boost (graph and system), which can be installed by 
-
-	sudo apt-get install libboost-all-dev
-
-LG can then be built with the following command:
-```
-make
-```
-And run with:
-
-	build/lg "/solvers/flow-cutter-pace17/flow_cutter_pace17 -s 1234567 -p 100" <../examples/pbtest.wbo
-
-To be useful, a tree decomposition solver must also be installed.
-Options include:
-* FlowCutter; In solvers/flow-cutter-pace17, compile by:
-	make
+Note that LG is an anytime algorithm, so it prints multiple join trees to STDOUT, separated by '='.
+The process ID of the tree-decomposition solver is given in the first comment line (`c pid`),
+which can be used to kill the tree-decomposition solver.

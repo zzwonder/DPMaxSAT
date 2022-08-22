@@ -19,17 +19,12 @@ build/.depend: $(srcfiles)
 	$(CXX) $(CXXFLAGS) -MM $^>>./build/.depend;
 
 clean:
-	rm -f $(objects) $(appname).sif
+	rm -f $(objects)
 	rm -rf ./build
 
 dist-clean: clean
 	rm -f *~ ./build/.depend
 
-$(appname).sif: Singularity $(srcfiles) $(headers)
-	singularity build $(appname).sif Singularity
-
 ifneq ($(MAKECMDGOALS), clean)
-ifneq ($(MAKECMDGOALS), $(appname).sif)
 include build/.depend
-endif
 endif
