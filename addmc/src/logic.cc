@@ -403,7 +403,7 @@ void Cnf::addClause(const Clause& clause, char type, double weight, int comparat
     else {
       varToClauses[var] = Set<Int>{clauseIndex};
     }
-  } 
+  }
 }
 
 void Cnf::setApparentVars() {
@@ -616,7 +616,7 @@ static void PB_canonicalize(Set<Int>& clause, Map<Int,Int>& coefs, int *k, int *
         *k = -(*k);
         for (auto itr = clause.begin(); itr != clause.end(); ++itr) {
             int var = *itr;
-            coefs[var] *= -1; 
+            coefs[var] *= -1;
         }
     }
     vector<Int> tempVar;
@@ -674,7 +674,7 @@ Cnf::Cnf(string filePath) {
       if (words.size() < 4) {
         throw MyError("problem line ", lineIndex, " has ", words.size(), " words (should be at least 4)");
       }
-       
+
       declaredVarCount = stoll(words.at(2));
       declaredClauseCount = stoll(words.at(3));
       wcnfFlag = (words.at(1) == "wcnf") ? 1 : 0;
@@ -694,7 +694,7 @@ Cnf::Cnf(string filePath) {
         trivialBoundPartialMaxSAT = stoll(words.at(12)); // the trivial bound given by a WBO problem for ADD pruning
         std::cout<<"c trivial bound: "<<trivialBoundPartialMaxSAT<<std::endl;
         problemLineIndex = lineIndex;
-    }        
+    }
     else if (Set<string>{"w", "vp", "c", "vm"}.contains(words.front())) { // possibly weight line or show line
       if (weightedCounting && (words.front() == "w" || (words.size() > 4 && words.at(1) == "p" && words.at(2) == "weight"))) { // weight line optionally ends with "0"
         if (problemLineIndex == MIN_INT) {
@@ -702,7 +702,7 @@ Cnf::Cnf(string filePath) {
         }
 
         Int literal = stoll(words.at(words.front() == "w" ? 1 : 3));
-         
+
         if (abs(literal) > declaredVarCount) {
           throw MyError("literal '", literal, "' inconsistent with declared var count '", declaredVarCount, "' | line ", lineIndex);
         }
@@ -720,7 +720,7 @@ Cnf::Cnf(string filePath) {
         }
 
         for (Int i = ( (words.front() == "vp" || words.front() == "vm") ? 1 : 3); i < words.size(); i++) {
-	  minMaxsatSolving = maxsatSolving; // set minMaxsatSolving flag to true 
+	  minMaxsatSolving = maxsatSolving; // set minMaxsatSolving flag to true
           Int num = stoll(words.at(i));
           if (num == 0) {
             if (i != words.size() - 1) {
@@ -767,7 +767,7 @@ Cnf::Cnf(string filePath) {
             if(comparator_string == ">=") comparator = 1;
             else if(comparator_string == "=") comparator = 2;
             else if(comparator_string == "<=") comparator = 3;
-            PB_canonicalize(clause, coefs, &k, &comparator); // comparator: >= (1), =(2) 
+            PB_canonicalize(clause, coefs, &k, &comparator); // comparator: >= (1), =(2)
             addClause(clause, type, weight, comparator, coefs, k);
           }
           else{
@@ -780,7 +780,7 @@ Cnf::Cnf(string filePath) {
 
                 if (num > declaredVarCount || num < -declaredVarCount) {
                     throw MyError("literal '", num, "' inconsistent with declared var count '", declaredVarCount, "' | line ", lineIndex);
-                } 
+                }
 
                if (num == 0) {
                   if (i != words.size() - 1) {
@@ -809,7 +809,7 @@ Cnf::Cnf(string filePath) {
           Map<Int, Int> coefs;
           if (words.front().starts_with("[")){  // soft constraint
               string firstWord = words.at(0);
-              weight = stod( firstWord.substr(1,firstWord.length() -2 ));  
+              weight = stod( firstWord.substr(1,firstWord.length() -2 ));
               words.erase(words.begin());
           }
           else{
@@ -821,7 +821,7 @@ Cnf::Cnf(string filePath) {
             Int coef = std::stoi(words[i*2]);
             clause.insert(var);
             coefs.insert (pair<Int,Int>(var, coef));
-            
+
           }
             std::string comparator_string = words[words.size()-3];
             int comparator = 0;
@@ -829,10 +829,10 @@ Cnf::Cnf(string filePath) {
             if(comparator_string == ">=") comparator = 1;
             else if(comparator_string == "=") comparator = 2;
             else if(comparator_string == "<=") comparator = 3;
-            PB_canonicalize(clause, coefs, &k, &comparator); // comparator: >= (1), =(2) 
+            PB_canonicalize(clause, coefs, &k, &comparator); // comparator: >= (1), =(2)
             addClause(clause, type, weight, comparator, coefs, k);
       }
-      else{    
+      else{
           for (Int i = 0; i < words.size(); i++) {
             if ( words.at(i) == "x"){  // this constraint is an XOR
 	    	    type = 'x';
@@ -845,7 +845,7 @@ Cnf::Cnf(string filePath) {
               Int num = stoll(words.at(i));
               if (num > declaredVarCount || num < -declaredVarCount) {
                 throw MyError("literal '", num, "' inconsistent with declared var count '", declaredVarCount, "' | line ", lineIndex);
-              }  
+              }
 
               if (num == 0) {
                 if (i != words.size() - 1) {
@@ -877,7 +877,7 @@ Cnf::Cnf(string filePath) {
 
   setApparentVars();
 
-  if ( (!projectedCounting) && (!maxsatSolving) ) {  // for maxsat problem, all variables are not additive  (min) variables by default 
+  if ( (!projectedCounting) && (!maxsatSolving) ) {  // for maxsat problem, all variables are not additive  (min) variables by default
     for (Int var = 1; var <= declaredVarCount; var++) {
       additiveVars.insert(var);
     }

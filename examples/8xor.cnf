@@ -1,4 +1,4 @@
-c parity= 1 1 0 1 1 1 0 0 
+c parity= 1 1 0 1 1 1 0 0
 c e= 0.125
 p cnf 8 16
 x 3 6 7 0

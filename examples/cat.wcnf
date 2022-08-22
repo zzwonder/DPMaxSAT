@@ -17,9 +17,9 @@ c    { "min": 115, "max": 1203, "ave": 818.01,
 c      "stddev": 294.91 }
 c}
 c------------------------------------------------------------
-c 
+c
 c %% The CATS webpage is http://robotics.stanford.edu/CATS
-c 
+c
 c %% PARAMETER SETTINGS:
 c % Goods: 60; Bids: 90; Distribution: paths; Runs: 30; Seed: 1151601916
 c % Paths Distribution Parameters:
@@ -28,9 +28,9 @@ c % Edge density:              = 3.000000
 c % Shipping cost factor:      = 1.500000
 c % Max bid set size:          = 5
 c % Building penalty:          = 1.700000
-c 
-c 
-c 
+c
+c
+c
 c PSEUDOBOOLEAN 74440
 p wcnf 91 662 74440
 392 1 0
@@ -695,4 +695,3 @@ p wcnf 91 662 74440
 74440 -89 -90 0
 74440 -89 -91 0
 74440 -90 -91 0
-
