@@ -14,9 +14,10 @@ CUDD_INCLUSIONS = -I$(CUDD_DIR) -I$(CUDD_DIR)/cudd -I$(CUDD_DIR)/epd -I$(CUDD_DI
 CUDD_LINKS = -L$(CUDD_DIR)/cudd/.libs -lcudd
 
 SYLVAN_DIR = libraries/sylvan
-SYLVAN_TARGET = $(SYLVAN_DIR)/build/install/lib/libsylvan.a
+SYLVAN_BUILD_DIR = $(SYLVAN_DIR)/build
+SYLVAN_TARGET = $(SYLVAN_BUILD_DIR)/install/lib/libsylvan.a
 SYLVAN_INCLUSIONS = -I$(SYLVAN_DIR)/src
-SYLVAN_LINKS = -L$(SYLVAN_DIR)/build/src -lsylvan -lpthread
+SYLVAN_LINKS = -L$(SYLVAN_BUILD_DIR)/src -lsylvan -lpthread
 
 CXXOPTS = libraries/cxxopts/include/cxxopts.hpp
 
@@ -47,8 +48,10 @@ $(CUDD_TARGET): $(shell find $(CUDD_DIR)/cudd -name "*.c" -o -name "*.h") $(shel
 	./INSTALL.sh
 
 $(SYLVAN_TARGET): $(shell find $(SYLVAN_DIR)/src -name "*.c" -o -name "*.h" -o -name "*.cpp" -o -name "*.hpp")
-	cd $(SYLVAN_DIR)
-	./INSTALL.sh
+	mkdir -p $(SYLVAN_BUILD_DIR)
+	cd $(SYLVAN_BUILD_DIR)
+	cmake .. -DBUILD_SHARED_LIBS=off
+	make -s
 
 .PHONY: all clean clean-libraries
 
