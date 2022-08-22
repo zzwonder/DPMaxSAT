@@ -161,15 +161,15 @@ public:
   Number extractConst() const;
   Dd getComposition(Int ddVar, bool val, const Cudd* mgr) const; // restricts *this to ddVar=val
   Dd getProduct(const Dd& dd) const;
-  Dd getSum(const Dd& dd) const; 
-  Dd getXOR(const Dd& dd) const; 
+  Dd getSum(const Dd& dd) const;
+  Dd getXOR(const Dd& dd) const;
   Dd getSubtraction(const Dd& dd) const;
   Dd getThreshold(Int threshold, const Cudd* mgr) const;
   vector<Int> setOfADDIndex;
   Float getMaxValue() const; // returh the constant node with largest value
   Float getMinValue() const; // returh the constant node with largest value
   Dd getMax(const Dd& dd) const; // real max (not 0-1 max)
-  Dd getMin(const Dd& dd) const; 
+  Dd getMin(const Dd& dd) const;
   Set<Int> getSupport() const;
   Dd getAbstraction(
     Int ddVar,
@@ -188,13 +188,13 @@ public:
     const Cudd* mgr
   ) const;
   Dd getAbstractionMaxSATBA(
-    Int ddVar, 
-    const vector<Int>& ddVarToCnfVarMap, 
-    const Map<Int, Number>& literalWeights, 
-    const Assignment& assignment, 
-    bool additive, 
-    map<int,Dd> &allADDs, 
-    const Cudd* mgr) const; 
+    Int ddVar,
+    const vector<Int>& ddVarToCnfVarMap,
+    const Map<Int, Number>& literalWeights,
+    const Assignment& assignment,
+    bool additive,
+    map<int,Dd> &allADDs,
+    const Cudd* mgr) const;
   void writeDotFile(const Cudd* mgr, string dotFileDir = "./") const;
   static void writeInfoFile(const Cudd* mgr, string filePath);
 };
@@ -220,11 +220,11 @@ public:
     const Cudd* mgr,
     const Assignment& assignment
   );
-  static Dd getPBDd(const Map<Int, Int>& cnfVarToDdVarMap, const vector<Int> clause, 
-      Map<Int,Int> coefs, const int comparator, 
-      const int rhs, int size, Int sum, 
-      Int material_left, 
-      std::map<pair<Int, Int>, Dd>& hashing, 
+  static Dd getPBDd(const Map<Int, Int>& cnfVarToDdVarMap, const vector<Int> clause,
+      Map<Int,Int> coefs, const int comparator,
+      const int rhs, int size, Int sum,
+      Int material_left,
+      std::map<pair<Int, Int>, Dd>& hashing,
       const Cudd* mgr, const Assignment& assignment);
   static Dd solveSubtree(
     const JoinNode* joinNode,
@@ -258,7 +258,7 @@ public:
   );
 
   static Number adjustSolution(const Number &apparentSolution); // takes into account hidden vars
-  
+
   static void printSatRow(const Number& solution, bool surelyUnsat, size_t keyWidth); // "s {satisfiability}"
   static void printTypeRow(size_t keyWidth); // "c s type {track}"
   static void printEstRow(const Number& solution, size_t keyWidth); // "c s log10-estimate {log(count)}"

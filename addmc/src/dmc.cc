@@ -4,7 +4,7 @@
 //#define ZERO_THRESHOLD
 //#define NOTHRESHOLD  // uncomment this if you want to test the performance without any ADD pruning
 //#define MAXIMIZER    // uncomment this if a maximizer is not needed to save time
-//#define MAXBYBA      
+//#define MAXBYBA
 //#define MAXBYPUREBA
 /* global vars ============================================================== */
 #define COUNT
@@ -582,7 +582,7 @@ Dd Dd::getXOR(const Dd& dd) const {
   std::cout<<"package besides CUDD is not supported for this function: getXOR";
   exit(1);
 }
-   
+
 Dd Dd::getMin(const Dd& dd) const {
   if (ddPackage == CUDD) {
     return Dd(cuadd.Minimum(dd.cuadd));
@@ -655,7 +655,7 @@ Dd Dd::getAbstractionMaxSAT(Int ddVar, const vector<Int>& ddVarToCnfVarMap, cons
 //  Dd diff = Dd(term0.cuadd - term1.cuadd);
 //  Dd Gx = Dd(diff.cuadd.BddThreshold(0).Add());
   auto t1 = std::chrono::high_resolution_clock::now();
-  Dd ans = additive ? term0.getMax(term1) :  term0.getMin(term1); // if additive is true, then the problem is Min-MaxSAT and the variable being eliminated is a min variable 
+  Dd ans = additive ? term0.getMax(term1) :  term0.getMin(term1); // if additive is true, then the problem is Min-MaxSAT and the variable being eliminated is a min variable
   auto t2 = std::chrono::high_resolution_clock::now();
 #endif
   auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
@@ -800,7 +800,7 @@ int signOfTerm(const vector<Int>& term){
       sign *= j;
    }
    std::cout<<"sgn="<<sign<<std::endl;
-   return sign;   
+   return sign;
 }
 
 Dd Executor::getClauseSDd(const Map<Int, Int>& cnfVarToDdVarMap, const Clause& clause, const Cudd* mgr, const Assignment& assignment) {
@@ -823,7 +823,7 @@ Dd Executor::getClauseSDd(const Map<Int, Int>& cnfVarToDdVarMap, const Clause& c
   terms.push_back({clauseVec[0],clauseVec[1]});
   terms.push_back({clauseVec[0],clauseVec[2]});
   terms.push_back({clauseVec[0],clauseVec[1],clauseVec[2]});
-  for (auto term : terms){ 
+  for (auto term : terms){
     int sign = signOfTerm(term);
     Dd res = Dd::getZeroDd(mgr);
     for (int i = 1; i <= n ;i++){
@@ -831,19 +831,19 @@ Dd Executor::getClauseSDd(const Map<Int, Int>& cnfVarToDdVarMap, const Clause& c
         Int ddVarT = cnfVarToDdVarMap.at(i);
         Dd literalDd = Dd::getVarDd(ddVarT, 1, mgr);
         if (i == 1){
-            res = (flag == 1) ? Dd ( literalDd.cuadd.Ite(one.cuadd * mgr->constant(-0.125 * sign), zero.cuadd)) : Dd ( literalDd.cuadd.Ite(zero.cuadd, one.cuadd * mgr->constant(-0.125 * sign) ));    
+            res = (flag == 1) ? Dd ( literalDd.cuadd.Ite(one.cuadd * mgr->constant(-0.125 * sign), zero.cuadd)) : Dd ( literalDd.cuadd.Ite(zero.cuadd, one.cuadd * mgr->constant(-0.125 * sign) ));
         }
         else{
             res = (flag == 1) ? Dd ( literalDd.cuadd.Ite(res.cuadd,zero.cuadd)) : Dd ( literalDd.cuadd.Ite(zero.cuadd,res.cuadd));
         }
-    } 
-    res.writeDotFile(mgr);  
-    ans = Dd(ans.cuadd + res.cuadd);   
+    }
+    res.writeDotFile(mgr);
+    ans = Dd(ans.cuadd + res.cuadd);
   }
   ans = Dd(ans.cuadd + mgr->constant(0.875));
 //  ans.writeDotFile(mgr);
   return ans;
-}   
+}
 
 Dd Executor::getXORDd(const Map<Int, Int>& cnfVarToDdVarMap, const Clause& clause, const Cudd* mgr, const Assignment& assignment) {
   Dd clauseDd = Dd::getZeroDd(mgr);
@@ -869,16 +869,16 @@ Dd Executor::getXORDd(const Map<Int, Int>& cnfVarToDdVarMap, const Clause& claus
 
 Dd Executor::getPBDd(const Map<Int, Int>& cnfVarToDdVarMap, const vector<Int> clause,
  Map<Int,Int> coefs, const int comparator,
-const int rhs, int size, Int sum, Int material_left, 
-std::map<pair<Int, Int>, Dd>& hashing, const Cudd* mgr, const Assignment& assignment) { 
+const int rhs, int size, Int sum, Int material_left,
+std::map<pair<Int, Int>, Dd>& hashing, const Cudd* mgr, const Assignment& assignment) {
     pair<Int,Int> sizeSumPair = std::make_pair(size,sum);
     if ( hashing.count(sizeSumPair)){
         Dd res = hashing.find(sizeSumPair)->second;
         return res;
-    }  
+    }
     if (comparator == 1 ){ // >=
         if ( sum >= rhs)
-            return Dd::getOneDd(mgr); 
+            return Dd::getOneDd(mgr);
         else if ( sum + material_left < rhs){
             return Dd::getZeroDd(mgr);
         }
@@ -886,13 +886,13 @@ std::map<pair<Int, Int>, Dd>& hashing, const Cudd* mgr, const Assignment& assign
     else if (comparator == 2){ // =
         if ((sum > rhs) || (sum + material_left < rhs) ){
             return Dd::getZeroDd(mgr);
-        } 
-        else if ( (material_left == 0) && (sum==rhs) ){
-            return Dd::getOneDd(mgr); 
         }
-    } 
-    Int literal = clause[size];   
-    int cnfVar = abs(literal);    
+        else if ( (material_left == 0) && (sum==rhs) ){
+            return Dd::getOneDd(mgr);
+        }
+    }
+    Int literal = clause[size];
+    int cnfVar = abs(literal);
     bool val = (literal > 0);
     Int ddVar = cnfVarToDdVarMap.at(cnfVar);
     Dd literalDd = Dd::getVarDd(ddVar, val, mgr);
@@ -917,12 +917,12 @@ Dd Executor::solveSubtree(const JoinNode* joinNode, const Map<Int, Int>& cnfVarT
     Dd d = Dd::getZeroDd(mgr);  // the ADD representing the hybrid constraint
     if (type == 'c') //CNF clause
         d = maxsatSolving? Dd(getClauseDd(cnfVarToDdVarMap, JoinNode::cnf.clauses.at(joinNode->nodeIndex), mgr, assignment).cuadd.Cmpl()) // 0 if satisfied; 1 if unsatisfied (cost) for maxsat
-                           : Dd(getClauseDd(cnfVarToDdVarMap, JoinNode::cnf.clauses.at(joinNode->nodeIndex), mgr, assignment));  // 1 if sat; 0 if UNSAT for model counting    
+                           : Dd(getClauseDd(cnfVarToDdVarMap, JoinNode::cnf.clauses.at(joinNode->nodeIndex), mgr, assignment));  // 1 if sat; 0 if UNSAT for model counting
     else if (type == 'x'){ // XOR constraint
         d = maxsatSolving ? Dd(getXORDd(cnfVarToDdVarMap, JoinNode::cnf.clauses.at(joinNode->nodeIndex), mgr, assignment).cuadd.Cmpl()) // for maxsat
                             : Dd(getXORDd(cnfVarToDdVarMap, JoinNode::cnf.clauses.at(joinNode->nodeIndex), mgr, assignment)); // for model counting
     }
-    else if (type == 'p'){ // PB constraints 
+    else if (type == 'p'){ // PB constraints
         std::map<pair<Int, Int>, Dd > hashing;
         Set<Int> clause = JoinNode::cnf.clauses.at(joinNode->nodeIndex);
         vector<Int> sortedClause(clause.begin(), clause.end());
@@ -932,7 +932,7 @@ Dd Executor::solveSubtree(const JoinNode* joinNode, const Map<Int, Int>& cnfVarT
             });
         Int coefsSum = 0;
         for (int i = 0; i < sortedClause.size(); i++){
-           
+
            if (coefs[sortedClause[i]] <= 0){
               for (auto iter = clause.begin(); iter != clause.end(); iter++){
                   std::cout<<*iter<<" ";
@@ -947,9 +947,9 @@ Dd Executor::solveSubtree(const JoinNode* joinNode, const Map<Int, Int>& cnfVarT
     }
     d = d.getProduct(Dd(mgr->constant(weight))); // multiply constraint weight to ADD
     updateVarDurations(joinNode, terminalStartPoint);
-    updateVarDdSizes(joinNode, d); 
+    updateVarDdSizes(joinNode, d);
 #ifdef MAXBYPUREBA
-    d.setOfADDIndex.push_back(joinNode->nodeIndex); // for Basic Algorithm  
+    d.setOfADDIndex.push_back(joinNode->nodeIndex); // for Basic Algorithm
     allADDs.insert(std::make_pair(joinNode->nodeIndex, d));
 #endif
     return d;
@@ -958,7 +958,7 @@ Dd Executor::solveSubtree(const JoinNode* joinNode, const Map<Int, Int>& cnfVarT
   vector<Dd> childDdList;
 
 #ifdef MAXBYPUREBA
-  Dd dd = Dd::getZeroDd(mgr); 
+  Dd dd = Dd::getZeroDd(mgr);
   for (JoinNode* child : joinNode->children) {
     vector<Int> childSetOfADDIndex = solveSubtree(child, cnfVarToDdVarMap, ddVarToCnfVarMap, LB, stackMaximizer, allADDs, mgr, assignment).setOfADDIndex;
     dd.setOfADDIndex.insert( dd.setOfADDIndex.end(), childSetOfADDIndex.begin(), childSetOfADDIndex.end() );
@@ -1004,7 +1004,7 @@ Dd Executor::solveSubtree(const JoinNode* joinNode, const Map<Int, Int>& cnfVarT
       }
       Dd dd3 = maxsatSolving ? dd1.getSum(dd2) : dd1.getProduct(dd2);
 //      int beforeCount = dd3.countNodes();
-      dd3 = dd3.getThreshold(upperBoundOfUNSATClauses, mgr); // prune the ADD 
+      dd3 = dd3.getThreshold(upperBoundOfUNSATClauses, mgr); // prune the ADD
 //      int afterCount = dd3.countNodes();
 //      if (afterCount < beforeCount)
 //          std::cout<<"pruning reduces:"<<beforeCount - afterCount<<" from "<<beforeCount<<" to "<<afterCount<<std::endl;
@@ -1013,7 +1013,7 @@ Dd Executor::solveSubtree(const JoinNode* joinNode, const Map<Int, Int>& cnfVarT
       if ( LB > oldLB) std::cout<<"c lower bound: "<<LB<<std::endl;
     }
     dd = childDdQueue.top();
-    
+
   }
 #endif
 
@@ -1041,7 +1041,7 @@ Dd Executor::solveSubtree(const JoinNode* joinNode, const Map<Int, Int>& cnfVarT
   Int numNodes =  dd.countNodes();
     if ( numNodes > maxOfADDNodes ){
       maxOfADDNodes = numNodes;
-  }  
+  }
   return dd;
 #endif
 }
@@ -1056,8 +1056,8 @@ Dd test_Walsh(int n, const Cudd* mgr) {
     std::cout<<"size of T_"<<n-1<<" = "<<small.countNodes()<<std::endl;
     Dd yn1 = Dd ( literalDdyn.cuadd.Ite(small.cuadd.Cmpl(), small.cuadd));
     return Dd ( literalDdxn.cuadd.Ite(yn1.cuadd, small.cuadd));
-}   
- 
+}
+
 
 
 void Executor::solveThreadSlices(const JoinNonterminal* joinRoot, const Map<Int, Int>& cnfVarToDdVarMap, const vector<Int>& ddVarToCnfVarMap, Float threadMem, Int threadIndex, const vector<vector<Assignment>>& threadAssignmentLists, Number& totalSolution, mutex& solutionMutex) {
@@ -1069,7 +1069,7 @@ void Executor::solveThreadSlices(const JoinNonterminal* joinRoot, const Map<Int,
     map<int, Dd> allADDs;
     const Cudd * mgr = Dd::newMgr(threadMem, threadIndex);
 #ifdef MAXBYPUREBA
-    Dd finalanswer = solveSubtree(static_cast<const JoinNode*>(joinRoot), cnfVarToDdVarMap, ddVarToCnfVarMap, LB, stackMaximizer, allADDs, mgr,  threadAssignments.at(threadAssignmentIndex)); 
+    Dd finalanswer = solveSubtree(static_cast<const JoinNode*>(joinRoot), cnfVarToDdVarMap, ddVarToCnfVarMap, LB, stackMaximizer, allADDs, mgr,  threadAssignments.at(threadAssignmentIndex));
     Dd sum = Dd::getZeroDd(mgr);
     for (auto index : finalanswer.setOfADDIndex){
         sum = sum.getSum(allADDs.find(index)->second);
@@ -1116,7 +1116,7 @@ void Executor::printMaximizer(stack<pair<int,Dd> >& stackMaximizer, const vector
         maximizer[i] = 0;
     }
     while (!stackMaximizer.empty()){
-        pair<int, Dd> varAddPair = stackMaximizer.top(); 
+        pair<int, Dd> varAddPair = stackMaximizer.top();
         stackMaximizer.pop();
         int ddVar = varAddPair.first;
         Dd Gx = varAddPair.second;
@@ -1125,7 +1125,7 @@ void Executor::printMaximizer(stack<pair<int,Dd> >& stackMaximizer, const vector
             assignment[ddVar] = 1;
             maximizer[ddVarToCnfVarMap[ddVar]-1] = 1;
         }
-    }   
+    }
     std::cout<<"v ";
     for (int i = 0; i < n; i++){
         if (maximizer[i] == 0){
@@ -1318,7 +1318,7 @@ void Executor::printSolutionRows(const Number& solution, bool surelyUnsat, size_
   cout << THIN_LINE;
   if(!maxsatSolving)
       std::cout<<"solution before adjustion: "<<solution.fraction<<std::endl;
-  
+
   Number n = maxsatSolving ? solution : adjustSolution(solution);
 
   printSatRow(n, surelyUnsat, keyWidth);

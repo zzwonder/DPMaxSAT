@@ -9,14 +9,17 @@ LINK_OPTIONS = -lgmpxx -lgmp $(link) # order matters
 ################################################################################
 
 CUDD_DIR = libraries/cudd
-CUDD_TARGET = $(CUDD_DIR)/build/install/lib/libcudd.a
+CUDD_LIB_DIR = $(CUDD_DIR)/cudd/.libs
+CUDD_TARGET = $(CUDD_LIB_DIR)/libcudd.a
 CUDD_INCLUSIONS = -I$(CUDD_DIR) -I$(CUDD_DIR)/cudd -I$(CUDD_DIR)/epd -I$(CUDD_DIR)/mtr -I$(CUDD_DIR)/st
-CUDD_LINKS = -L$(CUDD_DIR)/cudd/.libs -lcudd
+CUDD_LINKS = -L$(CUDD_LIB_DIR) -lcudd
 
 SYLVAN_DIR = libraries/sylvan
-SYLVAN_TARGET = $(SYLVAN_DIR)/build/install/lib/libsylvan.a
+SYLVAN_BUILD_DIR = $(SYLVAN_DIR)/build
+SYLVAN_LIB_DIR = $(SYLVAN_BUILD_DIR)/src
+SYLVAN_TARGET = $(SYLVAN_LIB_DIR)/libsylvan.a
 SYLVAN_INCLUSIONS = -I$(SYLVAN_DIR)/src
-SYLVAN_LINKS = -L$(SYLVAN_DIR)/build/src -lsylvan -lpthread
+SYLVAN_LINKS = -L$(SYLVAN_LIB_DIR) -lsylvan
 
 CXXOPTS = libraries/cxxopts/include/cxxopts.hpp
 
@@ -47,15 +50,28 @@ $(CUDD_TARGET): $(shell find $(CUDD_DIR)/cudd -name "*.c" -o -name "*.h") $(shel
 	./INSTALL.sh
 
 $(SYLVAN_TARGET): $(shell find $(SYLVAN_DIR)/src -name "*.c" -o -name "*.h" -o -name "*.cpp" -o -name "*.hpp")
-	cd $(SYLVAN_DIR)
-	./INSTALL.sh
+	mkdir -p $(SYLVAN_BUILD_DIR)
+	cd $(SYLVAN_BUILD_DIR)
+	cmake .. -DBUILD_SHARED_LIBS=off
+	make -s
 
-.PHONY: all clean clean-libraries
+.PHONY: all cudd sylvan clean clean-cudd clean-sylvan clean-libraries clean-all
 
 all: dmc htb
+
+cudd: $(CUDD_TARGET)
+
+sylvan: $(SYLVAN_TARGET)
 
 clean:
 	rm -f *.o dmc htb
 
-clean-libraries: clean
-	git submodule foreach git clean -xdf
+clean-cudd:
+	cd $(CUDD_DIR) && git clean -xdf
+
+clean-sylvan:
+	rm -rf $(SYLVAN_BUILD_DIR)
+
+clean-libraries: clean-cudd clean-sylvan
+
+clean-all: clean clean-libraries

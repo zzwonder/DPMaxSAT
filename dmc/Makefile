@@ -1,6 +1,3 @@
-dmc.sif: ../addmc/src/*
-	singularity build dmc.sif Singularity
-
 dmc: ../addmc/src/*
 	make -C ../addmc dmc opt=-Ofast
 	ln -sf ../addmc/dmc .
@@ -8,4 +5,4 @@ dmc: ../addmc/src/*
 .PHONY: clean
 
 clean:
-	rm -f dmc dmc.sif
+	rm -f dmc

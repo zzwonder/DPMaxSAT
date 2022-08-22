@@ -17,11 +17,6 @@ DMC computes the answer to a generalized MaxSAT problem using algebraic decision
   - [sylvan 1.5](https://github.com/trolando/sylvan)
 
 ### Command
-#### With Singularity 3.5 (slow)
-```bash
-sudo make dmc.sif
-```
-#### Without Singularity (quick)
 ```bash
 make dmc
 ```
@@ -29,7 +24,6 @@ make dmc
 <!-- ####################################################################### -->
 
 ## Examples
-If you use Singularity, then replace `./dmc --cf=$cnfFile` with `singularity run --bind="/:/host" ./dmc.sif --cf=/host$(realpath $cnfFile)` in the following commands.
 
 ### Showing command-line options
 #### Command
@@ -68,7 +62,6 @@ Usage:
       --vs arg  verbose solving: 0, 1, 2; int (default: 1)
       --mx arg  MaxSAT solving: 0, 1; always set to one when solving MaxSAT problems. int (default: 0)
       --mb arg  Upper Bound of cost for ADD pruning: int (default: inf)
-      
 ```
 
 ### Computing weighted projected model count given cnf file and join tree from jt file
@@ -128,5 +121,5 @@ The optimal cost is zero indicates that this instance is actually satisfiable.
 ### Computing weighted projected model count given cnf file and join tree from planner
 #### Command
 ```bash
-cnfFile="../examples/pbtest.wbo" && ../lg/lg.sif "/solvers/flow-cutter-pace17/flow_cutter_pace17 -p 100" <$cnfFile | ./dmc --cf=$cnfFile --mx=1
+cnfFile="../examples/pbtest.wbo" && ../lg/build/lg "../lg/solvers/flow-cutter-pace17/flow_cutter_pace17 -p 100" <$cnfFile | ./dmc --cf=$cnfFile --mx=1
 ```
