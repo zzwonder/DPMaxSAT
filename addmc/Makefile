@@ -9,15 +9,17 @@ LINK_OPTIONS = -lgmpxx -lgmp $(link) # order matters
 ################################################################################
 
 CUDD_DIR = libraries/cudd
-CUDD_TARGET = $(CUDD_DIR)/build/install/lib/libcudd.a
+CUDD_LIB_DIR = $(CUDD_DIR)/cudd/.libs
+CUDD_TARGET = $(CUDD_LIB_DIR)/libcudd.a
 CUDD_INCLUSIONS = -I$(CUDD_DIR) -I$(CUDD_DIR)/cudd -I$(CUDD_DIR)/epd -I$(CUDD_DIR)/mtr -I$(CUDD_DIR)/st
-CUDD_LINKS = -L$(CUDD_DIR)/cudd/.libs -lcudd
+CUDD_LINKS = -L$(CUDD_LIB_DIR) -lcudd
 
 SYLVAN_DIR = libraries/sylvan
 SYLVAN_BUILD_DIR = $(SYLVAN_DIR)/build
-SYLVAN_TARGET = $(SYLVAN_BUILD_DIR)/install/lib/libsylvan.a
+SYLVAN_LIB_DIR = $(SYLVAN_BUILD_DIR)/src
+SYLVAN_TARGET = $(SYLVAN_LIB_DIR)/libsylvan.a
 SYLVAN_INCLUSIONS = -I$(SYLVAN_DIR)/src
-SYLVAN_LINKS = -L$(SYLVAN_BUILD_DIR)/src -lsylvan -lpthread
+SYLVAN_LINKS = -L$(SYLVAN_LIB_DIR) -lsylvan
 
 CXXOPTS = libraries/cxxopts/include/cxxopts.hpp
 
