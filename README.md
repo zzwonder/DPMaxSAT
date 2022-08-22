@@ -12,7 +12,7 @@ DPMS handles generalized MaxSAT problems in an extended DIMACS format (described
 - gmp 6.2
 - make 4.2
 - already included as git submodules:
-  - [cudd 3.0](https://github.com/ivmai/cudd) (a slightly modified version for DPMS is inlcuded. Needs to be compiled manually, see below)
+  - [cudd 3.0](https://github.com/ivmai/cudd) (a slightly modified version for DPMS is included. Needs to be compiled manually, see below)
   - [cxxopts 2.2](https://github.com/jarro2783/cxxopts) (included)
   - [sylvan 1.5](https://github.com/trolando/sylvan)(included)
 
@@ -29,7 +29,7 @@ In lg/, run
 For more information, see [here](lg/README.md)
 
 ### Compile DMC (Executor)
-In dmc/, run 
+In dmc/, run
 
 	make dmc
 
@@ -41,7 +41,7 @@ For more information, see [here](dmc/README.md)
 Make sure to use "--mx=1" to enable maxSAT.
 
 Use the option "--mb=BOUND" to give an upper bound (int) of optimal cost (e.g., the result of o-line of a MaxSAT solver) for ADD pruning. For example,
-	
+
 	cnfFile="examples/hybrid.hwcnf" && lg/build/lg "lg/solvers/flow-cutter-pace17/flow_cutter_pace17 -p 100" < $cnfFile | dmc/dmc --cf=$cnfFile --mx=1 --mb=60000
 
 For a WBO or partial MaxSAT instance, --mb is set to be the trivial bound which can be read from the instance, unless the user gives a better bound.
@@ -56,13 +56,13 @@ Some examples of each type of problem can be found in examples/
 ### (generalized) MaxSAT and weighted MaxSAT
 The Max-CNF-SAT problems (.cnf) should use the DIMACS format: https://www.ieee.org/conferences/publishing/templates.html
 
-For XOR constraints, use 'x' at the beginning of a line 
+For XOR constraints, use 'x' at the beginning of a line
 
 	x1 xor x2 xor \neg x3 => x 1 2 -3 0.
 
 For weighted MaxSAT (.cnf), use "p wcnf nvars nclauses total-Soft-Weight" instead of "p cnf nvars nclauses" in header. For each clause line, put the weight at the beginning of a line, then the first literal.
 
-DPMS also accepts the hybrid weighted MaxSAT format (.hwcnf), take exapmles/hybrid.hwcnf for an example:
+DPMS also accepts the hybrid weighted MaxSAT format (.hwcnf), take examples/hybrid.hwcnf for an example:
 
 	p hwcnf 7 8 100
 	[3] +1 x1 +1 x2 >= 1 ;
@@ -77,7 +77,7 @@ DPMS also accepts the hybrid weighted MaxSAT format (.hwcnf), take exapmles/hybr
 In a .hwcnf file, weights are always in front of each constraint, wrapped by '[]'. Each constraint after the weight can be a CNF clause, XOR or a pseudo-Boolean constraint.
 
 ### Pseudo-Boolean optimization (WBO)
-For PB constraints (.wbo), here is an example 
+For PB constraints (.wbo), here is an example
 
 	+1 x1 +1 x2 >= 1 ;
 	[90] -1 x1 -1 x2 >= -1 ;
