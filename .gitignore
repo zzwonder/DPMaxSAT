@@ -1,0 +1,8 @@
+addmc/dmc
+addmc/htb
+
+lg/build/
+lg/solvers/flow-cutter-pace17/flow_cutter_pace17
+
+## object files:
+*.o
