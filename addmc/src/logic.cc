@@ -356,6 +356,31 @@ Set<Int> Clause::getClauseVars() const {
   return vars;
 }
 
+void Clause::PB_canonicalize(Map<Int,Int>& coefs, int *k, int *comparator){
+  if (*comparator == 3){
+    *comparator = 1;
+    *k = -(*k);
+    for (auto itr = begin(); itr != end(); ++itr) {
+      int var = *itr;
+      coefs[var] *= -1;
+    }
+  }
+  vector<Int> tempLiterals;
+  for (auto itr = begin(); itr != end(); ++itr) {
+    int literal = *itr;
+    if (coefs[literal] < 0){
+      coefs.insert(pair<int,int> (-literal, -coefs[literal]));
+      tempLiterals.push_back(-literal);
+      (*k) -= coefs[literal];
+      coefs.erase(literal);
+    }
+  }
+  for (auto literal : tempLiterals){
+    insert(literal);
+    erase(-literal);
+  }
+}
+
 /* class Cnf ================================================================ */
 
 void Cnf::printClauses() const {
@@ -608,31 +633,6 @@ vector<Int> Cnf::getCnfVarOrder(Int cnfVarOrderHeuristic) const {
   }
 
   return varOrder;
-}
-
-static void PB_canonicalize(Set<Int>& clause, Map<Int,Int>& coefs, int *k, int *comparator){ // comparator: >= (1), =(2), <= (3)
-  if (*comparator == 3){
-    *comparator = 1;
-    *k = -(*k);
-    for (auto itr = clause.begin(); itr != clause.end(); ++itr) {
-      int var = *itr;
-      coefs[var] *= -1;
-    }
-  }
-  vector<Int> tempVar;
-  for (auto itr = clause.begin(); itr != clause.end(); ++itr) {
-    int var = *itr;
-    if (coefs[var] < 0){
-      coefs.insert(pair<int,int> (-var, -coefs[var]));
-      tempVar.push_back(-var);
-      (*k) -= coefs[var];
-      coefs.erase(var);
-    }
-  }
-  for (auto var : tempVar){
-    clause.insert(var);
-    clause.erase(-var);
-  }
 }
 
 Cnf::Cnf() {}

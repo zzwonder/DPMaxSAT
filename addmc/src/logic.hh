@@ -284,6 +284,12 @@ class Clause : public Set<Int> {
 public:
   void printClause() const;
   Set<Int> getClauseVars() const;
+
+  void PB_canonicalize( // pseudo-Boolean constraint: c1*l1 + c2*l2 + ... comparator k
+    Map<Int,Int>& coefs, // will be converted to positive coefficients
+    int *k, // right-hand side of (in)equality
+    int *comparator // >= (1), = (2), <= (3, will be converted to type 1)
+  );
 };
 
 class Cnf {
