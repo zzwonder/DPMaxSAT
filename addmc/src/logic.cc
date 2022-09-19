@@ -652,8 +652,8 @@ Cnf::Cnf(string filePath) {
   Int problemLineIndex = MIN_INT;
 
   string line;
-  int wcnfFlag = 0; // flag indicates whether the instance is in WCNF (weighted MaxSAT)
-  int hwcnfFlag = 0; // flag indicates whether the instance is in hybrid WCNF (hybrid weighted MaxSAT)
+  bool wcnfFlag = false; // flag indicates whether the instance is in WCNF (weighted MaxSAT)
+  bool hwcnfFlag = false; // flag indicates whether the instance is in hybrid WCNF (hybrid weighted MaxSAT)
   while (getline(inputFileStream, line)) {
     lineIndex++;
     std::istringstream inStringStream(line);
@@ -677,10 +677,10 @@ Cnf::Cnf(string filePath) {
 
       declaredVarCount = stoll(words.at(2));
       declaredClauseCount = stoll(words.at(3));
-      wcnfFlag = (words.at(1) == "wcnf") ? 1 : 0;
-      hwcnfFlag = (words.at(1) == "hwcnf") ? 1 : 0;
-      if (hwcnfFlag == 1) wcnfFlag = 1;
-      if (wcnfFlag == 1){
+      wcnfFlag = words.at(1) == "wcnf";
+      hwcnfFlag = words.at(1) == "hwcnf";
+      if (hwcnfFlag) wcnfFlag = true;
+      if (wcnfFlag){
         std::cout<<"c Solving an weighted MaxSAT instance\n";
         if (words.size() == 5){
           trivialBoundPartialMaxSAT = stoll(words.at(4)); // the trivial bound given by a partial MaxSAT problem for ADD pruning
@@ -746,7 +746,7 @@ Cnf::Cnf(string filePath) {
       double weight = 1;  // default constraint weight is 1
       char type = 'c'; // constraints are CNF clauses by default
       // std::cout<<"front "<<words.front()<<std::endl;
-      if (hwcnfFlag == 1){
+      if (hwcnfFlag){
         Clause clause;
         string firstWord = words.at(0);
         weight = stod( firstWord.substr(1,firstWord.length() -2 ));
