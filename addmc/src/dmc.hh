@@ -2,6 +2,10 @@
 
 /* inclusions =============================================================== */
 
+#include <mutex>
+#include <stack>
+#include <thread>         // std::thread
+
 #include "../libraries/cudd/cplusplus/cuddObj.hh"
 #include "../libraries/cudd/cudd/cuddInt.h"
 
@@ -12,10 +16,9 @@
 
 #include "logic.hh"
 
-#include <thread>         // std::thread
-#include <mutex>
-
 /* uses ===================================================================== */
+
+using std::stack;
 
 using sylvan::gmp_op_max_CALL;
 using sylvan::gmp_op_plus_CALL;

@@ -12,7 +12,6 @@
 #include <queue>
 #include <random>
 #include <set>
-#include <stack>
 #include <signal.h>
 #include <sys/time.h>
 #include <thread>
@@ -41,7 +40,7 @@ using std::string;
 using std::thread;
 using std::to_string;
 using std::vector;
-using std::stack;
+
 /* types ==================================================================== */
 
 using Float = long double;
