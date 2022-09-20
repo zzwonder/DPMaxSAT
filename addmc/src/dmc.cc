@@ -1030,20 +1030,20 @@ Dd Executor::solveSubtree(const JoinNode* joinNode, const Map<Int, Int>& cnfVarT
 #endif
 #ifdef MAXBYPUREBA
     dd = dd.getAbstractionMaxSATBA(ddVar, ddVarToCnfVarMap, JoinNode::cnf.literalWeights, assignment, JoinNode::cnf.additiveVars.contains(cnfVar), allADDs, mgr);
-  }
-  return dd;
 #else
     dd = maxsatSolving ? dd.getAbstractionMaxSAT(ddVar, ddVarToCnfVarMap, JoinNode::cnf.literalWeights, assignment, JoinNode::cnf.additiveVars.contains(cnfVar), mgr) \
 	 :  dd.getAbstraction(ddVar, ddVarToCnfVarMap, JoinNode::cnf.literalWeights, assignment, JoinNode::cnf.additiveVars.contains(cnfVar), mgr);
+#endif
   }
+#ifndef MAXBYPUREBA
   updateVarDurations(joinNode, nonterminalStartPoint);
   updateVarDdSizes(joinNode, dd);
   Int numNodes =  dd.countNodes();
     if ( numNodes > maxOfADDNodes ){
       maxOfADDNodes = numNodes;
   }
-  return dd;
 #endif
+  return dd;
 }
 
 Dd test_Walsh(int n, const Cudd* mgr) {
