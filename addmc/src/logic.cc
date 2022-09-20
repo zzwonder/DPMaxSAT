@@ -356,6 +356,31 @@ Set<Int> Clause::getClauseVars() const {
   return vars;
 }
 
+void Clause::PB_canonicalize(Map<Int,Int>& coefs, int *k, int *comparator){
+  if (*comparator == 3){
+    *comparator = 1;
+    *k = -(*k);
+    for (auto itr = begin(); itr != end(); ++itr) {
+      int var = *itr;
+      coefs[var] *= -1;
+    }
+  }
+  vector<Int> tempLiterals;
+  for (auto itr = begin(); itr != end(); ++itr) {
+    int literal = *itr;
+    if (coefs[literal] < 0){
+      coefs.insert(pair<int,int> (-literal, -coefs[literal]));
+      tempLiterals.push_back(-literal);
+      (*k) -= coefs[literal];
+      coefs.erase(literal);
+    }
+  }
+  for (auto literal : tempLiterals){
+    insert(literal);
+    erase(-literal);
+  }
+}
+
 /* class Cnf ================================================================ */
 
 void Cnf::printClauses() const {
@@ -610,31 +635,6 @@ vector<Int> Cnf::getCnfVarOrder(Int cnfVarOrderHeuristic) const {
   return varOrder;
 }
 
-static void PB_canonicalize(Set<Int>& clause, Map<Int,Int>& coefs, int *k, int *comparator){ // comparator: >= (1), =(2), <= (3)
-    if (*comparator == 3){
-        *comparator = 1;
-        *k = -(*k);
-        for (auto itr = clause.begin(); itr != clause.end(); ++itr) {
-            int var = *itr;
-            coefs[var] *= -1;
-        }
-    }
-    vector<Int> tempVar;
-    for (auto itr = clause.begin(); itr != clause.end(); ++itr) {
-        int var = *itr;
-        if (coefs[var] < 0){
-            coefs.insert(pair<int,int> (-var, -coefs[var]));
-            tempVar.push_back(-var);
-            (*k) -= coefs[var];
-            coefs.erase(var);
-        }
-    }
-    for (auto var : tempVar){
-        clause.insert(var);
-        clause.erase(-var);
-    }
-}
-
 Cnf::Cnf() {}
 
 Cnf::Cnf(string filePath) {
@@ -652,8 +652,8 @@ Cnf::Cnf(string filePath) {
   Int problemLineIndex = MIN_INT;
 
   string line;
-  int wcnfFlag = 0; // flag indicates whether the instance is in WCNF (weighted MaxSAT)
-  int hwcnfFlag = 0; // flag indicates whether the instance is in hybrid WCNF (hybrid weighted MaxSAT)
+  bool wcnfFlag = false; // flag indicates whether the instance is in WCNF (weighted MaxSAT)
+  bool hwcnfFlag = false; // flag indicates whether the instance is in hybrid WCNF (hybrid weighted MaxSAT)
   while (getline(inputFileStream, line)) {
     lineIndex++;
     std::istringstream inStringStream(line);
@@ -677,23 +677,23 @@ Cnf::Cnf(string filePath) {
 
       declaredVarCount = stoll(words.at(2));
       declaredClauseCount = stoll(words.at(3));
-      wcnfFlag = (words.at(1) == "wcnf") ? 1 : 0;
-      hwcnfFlag = (words.at(1) == "hwcnf") ? 1 : 0;
-      if (hwcnfFlag == 1) wcnfFlag = 1;
-      if (wcnfFlag == 1){
-          std::cout<<"c Solving an weighted MaxSAT instance\n";
-          if (words.size() == 5){
-              trivialBoundPartialMaxSAT = stoll(words.at(4)); // the trivial bound given by a partial MaxSAT problem for ADD pruning
-              std::cout<<"c trivial bound: "<<trivialBoundPartialMaxSAT<<std::endl;
-          }
+      wcnfFlag = words.at(1) == "wcnf";
+      hwcnfFlag = words.at(1) == "hwcnf";
+      if (hwcnfFlag) wcnfFlag = true;
+      if (wcnfFlag){
+        std::cout<<"c Solving an weighted MaxSAT instance\n";
+        if (words.size() == 5){
+          trivialBoundPartialMaxSAT = stoll(words.at(4)); // the trivial bound given by a partial MaxSAT problem for ADD pruning
+          std::cout<<"c trivial bound: "<<trivialBoundPartialMaxSAT<<std::endl;
+        }
       }
     }
     else if ( (words.front() == "*") && (words.at(1) == "#variable=") ) { // problem line of a WBO/PBO file
-        declaredVarCount = std::stoll(words.at(2));
-        declaredClauseCount = stoll(words.at(4));
-        trivialBoundPartialMaxSAT = stoll(words.at(12)); // the trivial bound given by a WBO problem for ADD pruning
-        std::cout<<"c trivial bound: "<<trivialBoundPartialMaxSAT<<std::endl;
-        problemLineIndex = lineIndex;
+      declaredVarCount = std::stoll(words.at(2));
+      declaredClauseCount = stoll(words.at(4));
+      trivialBoundPartialMaxSAT = stoll(words.at(12)); // the trivial bound given by a WBO problem for ADD pruning
+      std::cout<<"c trivial bound: "<<trivialBoundPartialMaxSAT<<std::endl;
+      problemLineIndex = lineIndex;
     }
     else if (Set<string>{"w", "vp", "c", "vm"}.contains(words.front())) { // possibly weight line or show line
       if (weightedCounting && (words.front() == "w" || (words.size() > 4 && words.at(1) == "p" && words.at(2) == "weight"))) { // weight line optionally ends with "0"
@@ -713,14 +713,14 @@ Cnf::Cnf(string filePath) {
         }
         literalWeights[literal] = weight;
       }
-       // support for MinMaxSAT is added by reading a "vm" line for min variables
+      // support for MinMaxSAT is added by reading a "vm" line for min variables
       else if ( (projectedCounting || maxsatSolving)  && (words.front() == "vp" || words.front() == "vm" || (words.size() > 3 && words.at(1) == "p" && words.at(2) == "show"))) { // show line optionally ends with "0"
         if (problemLineIndex == MIN_INT) {
           throw MyError("no problem line before projected var | line ", lineIndex, ": ", line);
         }
 
         for (Int i = ( (words.front() == "vp" || words.front() == "vm") ? 1 : 3); i < words.size(); i++) {
-	  minMaxsatSolving = maxsatSolving; // set minMaxsatSolving flag to true
+          minMaxsatSolving = maxsatSolving; // set minMaxsatSolving flag to true
           Int num = stoll(words.at(i));
           if (num == 0) {
             if (i != words.size() - 1) {
@@ -745,75 +745,75 @@ Cnf::Cnf(string filePath) {
       }
       double weight = 1;  // default constraint weight is 1
       char type = 'c'; // constraints are CNF clauses by default
-     // std::cout<<"front "<<words.front()<<std::endl;
-      if (hwcnfFlag == 1){
-          Clause clause;
-          string firstWord = words.at(0);
-          weight = stod( firstWord.substr(1,firstWord.length() -2 ));
-          words.erase(words.begin());
-          if  ( words.at(1).starts_with("x")){  // WBO/PBO constraint
-              type = 'p';
-              Map<Int, Int> coefs;
-              for( int i = 0; i < (words.size() - 3) / 2; i++){
-                  std::string str = words.at(i*2+1);
-                  Int var = std::stoll(str.substr(1,str.length()));
-                  Int coef = std::stoi(words[i*2]);
-                  clause.insert(var);
-                  coefs.insert (pair<Int,Int>(var, coef));
-              }
-            std::string comparator_string = words[words.size()-3];
-            int comparator = 0;
-            int k = std::stoi(words[words.size() -2]);
-            if(comparator_string == ">=") comparator = 1;
-            else if(comparator_string == "=") comparator = 2;
-            else if(comparator_string == "<=") comparator = 3;
-            PB_canonicalize(clause, coefs, &k, &comparator); // comparator: >= (1), =(2)
-            addClause(clause, type, weight, comparator, coefs, k);
+      // std::cout<<"front "<<words.front()<<std::endl;
+      if (hwcnfFlag){
+        Clause clause;
+        string firstWord = words.at(0);
+        weight = stod( firstWord.substr(1,firstWord.length() -2 ));
+        words.erase(words.begin());
+        if  ( words.at(1).starts_with("x")){  // WBO/PBO constraint
+          type = 'p';
+          Map<Int, Int> coefs;
+          for( int i = 0; i < (words.size() - 3) / 2; i++){
+            std::string str = words.at(i*2+1);
+            Int var = std::stoll(str.substr(1,str.length()));
+            Int coef = std::stoi(words[i*2]);
+            clause.insert(var);
+            coefs.insert (pair<Int,Int>(var, coef));
           }
-          else{
-            for (Int i = 0; i < words.size(); i++) {
-                if ( words.at(i) == "x"){  // this constraint is an XOR
-                    type = 'x';
-                    continue;
-                }
-                Int num = stoll(words.at(i));
+          std::string comparator_string = words[words.size()-3];
+          int comparator = 0;
+          int k = std::stoi(words[words.size() -2]);
+          if(comparator_string == ">=") comparator = 1;
+          else if(comparator_string == "=") comparator = 2;
+          else if(comparator_string == "<=") comparator = 3;
+          PB_canonicalize(clause, coefs, &k, &comparator); // comparator: >= (1), =(2)
+          addClause(clause, type, weight, comparator, coefs, k);
+        }
+        else{
+          for (Int i = 0; i < words.size(); i++) {
+            if ( words.at(i) == "x"){  // this constraint is an XOR
+              type = 'x';
+              continue;
+            }
+            Int num = stoll(words.at(i));
 
-                if (num > declaredVarCount || num < -declaredVarCount) {
-                    throw MyError("literal '", num, "' inconsistent with declared var count '", declaredVarCount, "' | line ", lineIndex);
-                }
+            if (num > declaredVarCount || num < -declaredVarCount) {
+              throw MyError("literal '", num, "' inconsistent with declared var count '", declaredVarCount, "' | line ", lineIndex);
+            }
 
-               if (num == 0) {
-                  if (i != words.size() - 1) {
-                      throw MyError("clause terminated prematurely by '0' | line ", lineIndex);
-                  }
-
-                if (clause.empty()) {
-                   throw EmptyClauseException(lineIndex, line);
-                }
-                addClause(clause, type, weight);
-                processedClauseCount++;
+            if (num == 0) {
+              if (i != words.size() - 1) {
+                throw MyError("clause terminated prematurely by '0' | line ", lineIndex);
               }
-              else { // literal
-                if (i == words.size() - 1) {
-                     throw MyError("missing end-of-clause indicator '0' | line ", lineIndex);
-                }
-                clause.insert(num);
-             }
+
+              if (clause.empty()) {
+                throw EmptyClauseException(lineIndex, line);
+              }
+              addClause(clause, type, weight);
+              processedClauseCount++;
+            }
+            else { // literal
+              if (i == words.size() - 1) {
+                throw MyError("missing end-of-clause indicator '0' | line ", lineIndex);
+              }
+              clause.insert(num);
+            }
           }
-       }
+        }
       }
       else{     // typical DIMACS file
-      Clause clause;
-      if  ((words.front().starts_with("[")) || ((words.at(1).starts_with("x")))){  // WBO/PBO constraint
+        Clause clause;
+        if  ((words.front().starts_with("[")) || ((words.at(1).starts_with("x")))){  // WBO/PBO constraint
           type = 'p';
           Map<Int, Int> coefs;
           if (words.front().starts_with("[")){  // soft constraint
-              string firstWord = words.at(0);
-              weight = stod( firstWord.substr(1,firstWord.length() -2 ));
-              words.erase(words.begin());
+            string firstWord = words.at(0);
+            weight = stod( firstWord.substr(1,firstWord.length() -2 ));
+            words.erase(words.begin());
           }
           else{
-              weight = trivialBoundPartialMaxSAT + 1; // weight of a hard constraint is total weight of soft constraints + 1
+            weight = trivialBoundPartialMaxSAT + 1; // weight of a hard constraint is total weight of soft constraints + 1
           }
           for( int i = 0; i < (words.size() - 3) / 2; i++){
             std::string str = words.at(i*2+1);
@@ -821,7 +821,6 @@ Cnf::Cnf(string filePath) {
             Int coef = std::stoi(words[i*2]);
             clause.insert(var);
             coefs.insert (pair<Int,Int>(var, coef));
-
           }
             std::string comparator_string = words[words.size()-3];
             int comparator = 0;
@@ -831,43 +830,43 @@ Cnf::Cnf(string filePath) {
             else if(comparator_string == "<=") comparator = 3;
             PB_canonicalize(clause, coefs, &k, &comparator); // comparator: >= (1), =(2)
             addClause(clause, type, weight, comparator, coefs, k);
-      }
-      else{
+        }
+        else{
           for (Int i = 0; i < words.size(); i++) {
             if ( words.at(i) == "x"){  // this constraint is an XOR
-	    	    type = 'x';
-		    continue;
-  	    }
-              if ((wcnfFlag && (type == 'c') && (i == 0)) || (wcnfFlag && (type == 'x' ) && (i == 1)) ){  // catch the weight for weighted MaxSAT
-              weight = stod(words.at(i));
-	      continue;
-  	      }
-              Int num = stoll(words.at(i));
-              if (num > declaredVarCount || num < -declaredVarCount) {
-                throw MyError("literal '", num, "' inconsistent with declared var count '", declaredVarCount, "' | line ", lineIndex);
-              }
-
-              if (num == 0) {
-                if (i != words.size() - 1) {
-                  throw MyError("clause terminated prematurely by '0' | line ", lineIndex);
-                }
-
-                if (clause.empty()) {
-                  throw EmptyClauseException(lineIndex, line);
-                }
-
-                addClause(clause, type, weight);
-                processedClauseCount++;
-              }
-          else { // literal
-            if (i == words.size() - 1) {
-              throw MyError("missing end-of-clause indicator '0' | line ", lineIndex);
+              type = 'x';
+              continue;
             }
-            clause.insert(num);
+            if ((wcnfFlag && (type == 'c') && (i == 0)) || (wcnfFlag && (type == 'x' ) && (i == 1)) ){  // catch the weight for weighted MaxSAT
+              weight = stod(words.at(i));
+              continue;
+            }
+            Int num = stoll(words.at(i));
+            if (num > declaredVarCount || num < -declaredVarCount) {
+              throw MyError("literal '", num, "' inconsistent with declared var count '", declaredVarCount, "' | line ", lineIndex);
+            }
+
+            if (num == 0) {
+              if (i != words.size() - 1) {
+                throw MyError("clause terminated prematurely by '0' | line ", lineIndex);
+              }
+
+              if (clause.empty()) {
+                throw EmptyClauseException(lineIndex, line);
+              }
+
+              addClause(clause, type, weight);
+              processedClauseCount++;
+            }
+            else { // literal
+              if (i == words.size() - 1) {
+                throw MyError("missing end-of-clause indicator '0' | line ", lineIndex);
+              }
+              clause.insert(num);
+            }
           }
         }
       }
-     }
     }
   }
 
