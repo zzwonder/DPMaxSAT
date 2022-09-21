@@ -767,7 +767,7 @@ Cnf::Cnf(string filePath) {
           if(comparator_string == ">=") comparator = 1;
           else if(comparator_string == "=") comparator = 2;
           else if(comparator_string == "<=") comparator = 3;
-          PB_canonicalize(clause, coefs, &k, &comparator); // comparator: >= (1), =(2)
+          clause.PB_canonicalize(coefs, &k, &comparator); // comparator: >= (1), =(2)
           addClause(clause, type, weight, comparator, coefs, k);
         }
         else{
@@ -828,7 +828,7 @@ Cnf::Cnf(string filePath) {
             if(comparator_string == ">=") comparator = 1;
             else if(comparator_string == "=") comparator = 2;
             else if(comparator_string == "<=") comparator = 3;
-            PB_canonicalize(clause, coefs, &k, &comparator); // comparator: >= (1), =(2)
+            clause.PB_canonicalize(coefs, &k, &comparator); // comparator: >= (1), =(2)
             addClause(clause, type, weight, comparator, coefs, k);
         }
         else{
